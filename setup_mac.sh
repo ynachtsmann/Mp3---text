@@ -48,8 +48,24 @@ pip install --upgrade pip
 # Install numpy first (important for aeneas)
 pip install "numpy<2"
 
+# --- FIX FOR MAC (Apple Silicon & Intel) ---
+# Aeneas braucht Hilfe, um die 'espeak' Header zu finden.
+BREW_PREFIX=$(brew --prefix)
+export CFLAGS="-I$BREW_PREFIX/include"
+export LDFLAGS="-L$BREW_PREFIX/lib"
+echo "Setze Compiler-Pfade auf: $BREW_PREFIX"
+# -------------------------------------------
+
 # Install other requirements
-pip install -r requirements.txt
+# Versuche Installation. Wenn es fehlschlägt, zeige Hilfe.
+if pip install -r requirements.txt; then
+    echo -e "${GREEN}Python Pakete erfolgreich installiert.${NC}"
+else
+    echo -e "\033[0;31mFehler bei der Installation der Pakete.\033[0m"
+    echo "Versuche espeak manuell zu verlinken..."
+    # Fallback attempt specifically for aeneas compilation issues
+    pip install aeneas --global-option=build_ext --global-option="-I$BREW_PREFIX/include" --global-option="-L$BREW_PREFIX/lib"
+fi
 
 # 7. Create Start Script
 echo -e "${GREEN}Erstelle Start-Skript...${NC}"
