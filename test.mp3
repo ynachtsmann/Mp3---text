@@ -1,0 +1,2 @@
+# Just a placeholder empty file, since we can't run real audio processing in this sandbox anyway without ffmpeg.
+# The mock will handle it.
