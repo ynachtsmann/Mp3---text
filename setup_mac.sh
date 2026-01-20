@@ -107,6 +107,10 @@ export AENEAS_WITH_CEW=False
 pip install aeneas --no-build-isolation
 check_error "Installation von Aeneas fehlgeschlagen."
 
+echo "Verifiziere Aeneas Installation..."
+python3 -c "import aeneas; print('Aeneas Version:', aeneas.__version__)"
+check_error "Aeneas konnte nach der Installation nicht importiert werden."
+
 # 7. Make Start Script Executable
 echo -e "${GREEN}Setze Rechte für Start-Skript...${NC}"
 if [ -f "Starten.command" ]; then

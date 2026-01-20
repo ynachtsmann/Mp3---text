@@ -6,14 +6,15 @@ import shutil
 import sys
 
 # Try to import aeneas, if not available (development env), we might mock it later or handle error
+aeneas_error = None
 try:
     from aeneas.executetask import ExecuteTask
     from aeneas.task import Task
     from aeneas.language import Language
-except ImportError:
+except ImportError as e:
     # This block allows the app to load in dev environment without aeneas installed
     # The actual execution would fail unless mocked, but UI works.
-    pass
+    aeneas_error = e
 
 def process_files(audio_file, text_file):
     """
@@ -52,7 +53,12 @@ def process_files(audio_file, text_file):
             ExecuteTask(task).execute()
         except NameError:
              # Fallback for development/sandbox where ExecuteTask is not imported
-             st.error("Aeneas library is not installed in this environment.")
+             if aeneas_error:
+                 st.error(f"Die Aeneas Bibliothek konnte nicht geladen werden.")
+                 st.error(f"Details: {aeneas_error}")
+                 st.info("Bitte führe 'setup_mac.sh' erneut aus und sende den Output, falls Fehler auftreten.")
+             else:
+                 st.error("Aeneas library is not installed in this environment.")
              return []
         except Exception as e:
             st.error(f"Fehler bei der Synchronisation: {e}")

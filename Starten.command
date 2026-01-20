@@ -16,6 +16,22 @@ fi
 
 source venv/bin/activate
 
+# Check if aeneas is importable
+python3 -c "import aeneas" 2>/dev/null
+if [ $? -ne 0 ]; then
+    echo "---------------------------------------------------------------"
+    echo "FEHLER: 'aeneas' konnte nicht geladen werden!"
+    echo "---------------------------------------------------------------"
+    echo "Möglicherweise gab es einen Fehler bei der Installation."
+    echo "Versuche, 'setup_mac.sh' erneut auszuführen."
+    echo "Der genaue Fehler wird beim Import-Versuch angezeigt:"
+    echo ""
+    python3 -c "import aeneas"
+    echo ""
+    read -p "Drücke ENTER um das Fenster zu schließen..."
+    exit 1
+fi
+
 # Check if streamlit is installed
 if ! command -v streamlit &> /dev/null
 then
