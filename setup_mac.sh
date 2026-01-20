@@ -85,7 +85,8 @@ python3 --version
 
 # Upgrade pip and install build tools
 echo "Installiere Build-Tools (pip, wheel, setuptools)..."
-pip install --upgrade pip wheel setuptools
+# Downgrade setuptools to <60 because aeneas is incompatible with newer versions (distutils issue)
+pip install --upgrade pip wheel "setuptools<60"
 check_error "Installation der Build-Tools fehlgeschlagen."
 
 # --- FIX FOR MAC (Apple Silicon & Intel) ---
