@@ -67,18 +67,8 @@ else
     pip install aeneas --global-option=build_ext --global-option="-I$BREW_PREFIX/include" --global-option="-L$BREW_PREFIX/lib"
 fi
 
-# 7. Create Start Script
-echo -e "${GREEN}Erstelle Start-Skript...${NC}"
-cat <<EOF > Starten.command
-#!/bin/bash
-cd "\$(dirname "\$0")"
-source venv/bin/activate
-streamlit run app.py
-echo ""
-echo "Das Programm wurde beendet."
-read -p "Drücke ENTER um das Fenster zu schließen..."
-EOF
-
+# 7. Make Start Script Executable
+echo -e "${GREEN}Setze Rechte für Start-Skript...${NC}"
 chmod +x Starten.command
 
 echo -e "${GREEN}Installation abgeschlossen!${NC}"
