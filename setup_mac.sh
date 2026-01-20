@@ -1,10 +1,21 @@
 #!/bin/bash
 
+# Ensure we are in the correct directory
+cd "$(dirname "$0")"
+
 # Farben für die Ausgabe
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}Starte Installation für 'Audio to Text Aya Sync'...${NC}"
+echo "Arbeitsverzeichnis: $(pwd)"
+
+# Check if requirements.txt exists here
+if [ ! -f "requirements.txt" ]; then
+    echo -e "\033[0;31mFEHLER: Datei 'requirements.txt' nicht gefunden!\033[0m"
+    echo "Bitte stelle sicher, dass du den GANZEN Ordner heruntergeladen hast und nicht nur das Skript."
+    exit 1
+fi
 
 # 1. Check Homebrew
 if ! command -v brew &> /dev/null
@@ -61,20 +72,25 @@ echo "Setze Compiler-Pfade auf: $BREW_PREFIX"
 if pip install -r requirements.txt; then
     echo -e "${GREEN}Python Pakete erfolgreich installiert.${NC}"
 else
-    echo -e "\033[0;31mFehler bei der Installation der Pakete.\033[0m"
+    echo -e "\033[0;31mFehler bei der Installation der Pakete. Versuche Fallback...\033[0m"
     echo "Versuche espeak manuell zu verlinken..."
     # Fallback attempt specifically for aeneas compilation issues
-    pip install aeneas --global-option=build_ext --global-option="-I$BREW_PREFIX/include" --global-option="-L$BREW_PREFIX/lib"
+    # Using CFLAGS/LDFLAGS env vars which is the modern way, dropping deprecated global-options
+    pip install aeneas
 fi
 
 # 7. Make Start Script Executable & Fix Gatekeeper
 echo -e "${GREEN}Setze Rechte für Start-Skript...${NC}"
-chmod +x Starten.command
-
-# Entferne "Quarantine" Attribut (verhindert "Malware" Warnung)
-echo "Entferne Apple Sicherheits-Warnung von den Skripten..."
-xattr -d com.apple.quarantine Starten.command 2>/dev/null || true
-xattr -d com.apple.quarantine app.py 2>/dev/null || true
+if [ -f "Starten.command" ]; then
+    chmod +x Starten.command
+    # Entferne "Quarantine" Attribut (verhindert "Malware" Warnung)
+    echo "Entferne Apple Sicherheits-Warnung von den Skripten..."
+    xattr -d com.apple.quarantine Starten.command 2>/dev/null || true
+    xattr -d com.apple.quarantine app.py 2>/dev/null || true
+else
+    echo -e "\033[0;31mWARNUNG: 'Starten.command' wurde nicht gefunden. Bitte lade den Ordner erneut herunter.\033[0m"
+fi
 
 echo -e "${GREEN}Installation abgeschlossen!${NC}"
 echo "Du kannst das Programm nun mit einem Doppelklick auf 'Starten.command' starten."
+echo "Falls sich Xcode öffnet: Rechtsklick -> Öffnen mit -> Terminal."
