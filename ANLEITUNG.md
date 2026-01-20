@@ -24,6 +24,17 @@ Hallo! Hier ist die Schritt-für-Schritt-Anleitung, um das Programm auf deinem M
 
 ---
 
+## HILFE: Warnung "Nicht verifizierter Entwickler" / "Malware"
+
+Falls beim Starten eine Meldung kommt wie **"kann nicht geöffnet werden, da der Entwickler nicht verifiziert ist"** (das ist normal, da ich kein Apple-Zertifikat habe):
+
+1. Mache einen **Rechtsklick** auf die Datei (`Starten.command` oder `setup_mac.sh`).
+2. Wähle im Menü **"Öffnen"**.
+3. Es erscheint wieder ein Fenster, aber diesmal gibt es einen **"Öffnen"**-Button. Klicke darauf.
+4. Das musst du nur **einmal** machen.
+
+---
+
 ## Programm starten
 
 Wenn die Installation einmal durchgelaufen ist, ist es ganz einfach:

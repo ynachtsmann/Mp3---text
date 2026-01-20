@@ -67,9 +67,14 @@ else
     pip install aeneas --global-option=build_ext --global-option="-I$BREW_PREFIX/include" --global-option="-L$BREW_PREFIX/lib"
 fi
 
-# 7. Make Start Script Executable
+# 7. Make Start Script Executable & Fix Gatekeeper
 echo -e "${GREEN}Setze Rechte für Start-Skript...${NC}"
 chmod +x Starten.command
+
+# Entferne "Quarantine" Attribut (verhindert "Malware" Warnung)
+echo "Entferne Apple Sicherheits-Warnung von den Skripten..."
+xattr -d com.apple.quarantine Starten.command 2>/dev/null || true
+xattr -d com.apple.quarantine app.py 2>/dev/null || true
 
 echo -e "${GREEN}Installation abgeschlossen!${NC}"
 echo "Du kannst das Programm nun mit einem Doppelklick auf 'Starten.command' starten."
