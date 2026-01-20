@@ -52,28 +52,36 @@ echo "Update Homebrew..."
 brew update
 
 # 3. Install System Dependencies
-echo -e "${GREEN}Installiere ffmpeg und espeak...${NC}"
-brew install ffmpeg espeak
-check_error "Installation von ffmpeg/espeak fehlgeschlagen."
+echo -e "${GREEN}Installiere ffmpeg, espeak und Python 3.9...${NC}"
+brew install ffmpeg espeak python@3.9
+check_error "Installation von System-Tools fehlgeschlagen."
 
-# 4. Check for Python 3
-if ! command -v python3 &> /dev/null
-then
-    echo "Python 3 nicht gefunden. Installiere Python..."
-    brew install python
-    check_error "Python Installation fehlgeschlagen."
+# 4. Cleanup old venv
+if [ -d "venv" ]; then
+    echo "Entferne alte Umgebung..."
+    rm -rf venv
 fi
 
-# 5. Create Virtual Environment
-echo -e "${GREEN}Erstelle Python Umgebung (venv)...${NC}"
-if [ ! -d "venv" ]; then
-    python3 -m venv venv
-    check_error "Konnte venv nicht erstellen."
+# 5. Create Virtual Environment with Python 3.9
+echo -e "${GREEN}Erstelle Python 3.9 Umgebung (venv)...${NC}"
+# Finde den Pfad zu Python 3.9 von Homebrew
+PYTHON_BIN="$(brew --prefix)/opt/python@3.9/bin/python3"
+
+if [ ! -f "$PYTHON_BIN" ]; then
+     echo -e "${RED}Konnte Python 3.9 nicht finden. Versuche Fallback...${NC}"
+     PYTHON_BIN="python3.9"
 fi
+
+$PYTHON_BIN -m venv venv
+check_error "Konnte venv nicht erstellen."
 
 # 6. Activate venv and install packages
 echo -e "${GREEN}Aktiviere Umgebung und installiere Pakete...${NC}"
 source venv/bin/activate
+
+# Check python version
+echo "Benutzte Python Version:"
+python3 --version
 
 # Upgrade pip and install build tools
 echo "Installiere Build-Tools (pip, wheel, setuptools)..."
@@ -81,7 +89,6 @@ pip install --upgrade pip wheel setuptools
 check_error "Installation der Build-Tools fehlgeschlagen."
 
 # --- FIX FOR MAC (Apple Silicon & Intel) ---
-# Aeneas braucht Hilfe, um die 'espeak' Header zu finden.
 BREW_PREFIX=$(brew --prefix)
 export CFLAGS="-I$BREW_PREFIX/include"
 export LDFLAGS="-L$BREW_PREFIX/lib"
@@ -93,9 +100,9 @@ pip install -r requirements.txt
 check_error "Installation der Basis-Pakete fehlgeschlagen."
 
 echo -e "${GREEN}Installiere Aeneas (Audio-Engine)...${NC}"
-# FIX 1: Umgebungsvariable AENEAS_WITH_CEW=False (deaktiviert problematische C-Erweiterung)
+# FIX 1: Umgebungsvariable AENEAS_WITH_CEW=False
 export AENEAS_WITH_CEW=False
-# FIX 2: --no-build-isolation (nutzt installiertes Numpy)
+# FIX 2: --no-build-isolation
 pip install aeneas --no-build-isolation
 check_error "Installation von Aeneas fehlgeschlagen."
 
@@ -103,7 +110,6 @@ check_error "Installation von Aeneas fehlgeschlagen."
 echo -e "${GREEN}Setze Rechte für Start-Skript...${NC}"
 if [ -f "Starten.command" ]; then
     chmod +x Starten.command
-    # Noch einmal am Ende, falls die Datei neu erstellt wurde (hier nicht der Fall, aber sicher ist sicher)
     xattr -d com.apple.quarantine Starten.command 2>/dev/null || true
     xattr -d com.apple.quarantine app.py 2>/dev/null || true
 else
@@ -113,4 +119,3 @@ fi
 echo -e "${GREEN}Installation erfolgreich abgeschlossen!${NC}"
 echo "--------------------------------------------------------"
 echo "Du kannst das Programm nun mit einem Doppelklick auf 'Starten.command' starten."
-echo "Falls sich Xcode öffnet: Rechtsklick -> Öffnen mit -> Terminal."
