@@ -28,10 +28,9 @@ Hallo! Hier ist die Schritt-für-Schritt-Anleitung, um das Programm auf deinem M
 
 Wenn die Installation einmal durchgelaufen ist, ist es ganz einfach:
 
-1. Suche im Ordner die Datei `start_app.sh`.
-2. Mache einen **Rechtsklick** darauf -> "Öffnen mit" -> "Terminal".
-   - *Alternativ*: Wenn du es im Terminal starten willst: `./start_app.sh`
-3. Es öffnet sich automatisch ein Browser-Fenster mit dem Programm.
+1. Suche im Ordner die Datei **`Starten.command`**.
+2. Mache einfach einen **Doppelklick** darauf.
+3. Es öffnet sich automatisch ein schwarzes Fenster (Terminal) und kurz danach dein Browser mit dem Programm.
 
 ---
 

@@ -69,14 +69,17 @@ fi
 
 # 7. Create Start Script
 echo -e "${GREEN}Erstelle Start-Skript...${NC}"
-cat <<EOF > start_app.sh
+cat <<EOF > Starten.command
 #!/bin/bash
 cd "\$(dirname "\$0")"
 source venv/bin/activate
 streamlit run app.py
+echo ""
+echo "Das Programm wurde beendet."
+read -p "Drücke ENTER um das Fenster zu schließen..."
 EOF
 
-chmod +x start_app.sh
+chmod +x Starten.command
 
 echo -e "${GREEN}Installation abgeschlossen!${NC}"
-echo "Du kannst das Programm nun mit einem Doppelklick auf 'start_app.sh' starten."
+echo "Du kannst das Programm nun mit einem Doppelklick auf 'Starten.command' starten."
