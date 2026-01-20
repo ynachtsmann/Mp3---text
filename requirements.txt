@@ -1,3 +1,2 @@
 streamlit
-numpy
-aeneas
+numpy<2
