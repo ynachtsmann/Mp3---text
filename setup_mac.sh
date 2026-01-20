@@ -11,6 +11,13 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}Starte Installation für 'Audio to Text Aya Sync'...${NC}"
 echo "Arbeitsverzeichnis: $(pwd)"
 
+# === SOFORT-FIX: ENTFERNE MALWARE-WARNUNG VORAB ===
+if [ -f "Starten.command" ]; then
+    echo "Entferne Apple Sicherheits-Warnung von 'Starten.command'..."
+    xattr -d com.apple.quarantine Starten.command 2>/dev/null || true
+fi
+# ==================================================
+
 # Helper function for error handling
 check_error() {
     if [ $? -ne 0 ]; then
@@ -68,8 +75,10 @@ fi
 echo -e "${GREEN}Aktiviere Umgebung und installiere Pakete...${NC}"
 source venv/bin/activate
 
-# Upgrade pip
-pip install --upgrade pip
+# Upgrade pip and install build tools
+echo "Installiere Build-Tools (pip, wheel, setuptools)..."
+pip install --upgrade pip wheel setuptools
+check_error "Installation der Build-Tools fehlgeschlagen."
 
 # --- FIX FOR MAC (Apple Silicon & Intel) ---
 # Aeneas braucht Hilfe, um die 'espeak' Header zu finden.
@@ -84,16 +93,17 @@ pip install -r requirements.txt
 check_error "Installation der Basis-Pakete fehlgeschlagen."
 
 echo -e "${GREEN}Installiere Aeneas (Audio-Engine)...${NC}"
-# CRITICAL FIX: Use --no-build-isolation so aeneas can see the installed numpy
+# FIX 1: Umgebungsvariable AENEAS_WITH_CEW=False (deaktiviert problematische C-Erweiterung)
+export AENEAS_WITH_CEW=False
+# FIX 2: --no-build-isolation (nutzt installiertes Numpy)
 pip install aeneas --no-build-isolation
-check_error "Installation von Aeneas fehlgeschlagen. Wahrscheinlich Numpy-Problem."
+check_error "Installation von Aeneas fehlgeschlagen."
 
-# 7. Make Start Script Executable & Fix Gatekeeper
+# 7. Make Start Script Executable
 echo -e "${GREEN}Setze Rechte für Start-Skript...${NC}"
 if [ -f "Starten.command" ]; then
     chmod +x Starten.command
-    # Entferne "Quarantine" Attribut (verhindert "Malware" Warnung)
-    echo "Entferne Apple Sicherheits-Warnung von den Skripten..."
+    # Noch einmal am Ende, falls die Datei neu erstellt wurde (hier nicht der Fall, aber sicher ist sicher)
     xattr -d com.apple.quarantine Starten.command 2>/dev/null || true
     xattr -d com.apple.quarantine app.py 2>/dev/null || true
 else
