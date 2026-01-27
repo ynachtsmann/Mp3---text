@@ -71,17 +71,23 @@ def process_files(audio_file, text_file):
         json_output = []
 
         # We can iterate over fragments directly from the task object
-        for i, fragment in enumerate(task.sync_map_leaves()):
+        current_index = 1
+        for fragment in task.sync_map_leaves():
             # fragment.begin and fragment.end are strings/floats
             # fragment.text is the text
 
+            # Filter out empty text segments (often head/tail silence)
+            if not fragment.text or not fragment.text.strip():
+                continue
+
             entry = {
-                "index": i + 1,
+                "index": current_index,
                 "start": float(fragment.begin),
                 "end": float(fragment.end),
                 "text": fragment.text
             }
             json_output.append(entry)
+            current_index += 1
 
         return json_output
 
