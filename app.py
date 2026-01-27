@@ -4,6 +4,7 @@ import tempfile
 import json
 import shutil
 import sys
+import re
 
 # Try to import aeneas, if not available (development env), we might mock it later or handle error
 aeneas_error = None
@@ -15,6 +16,17 @@ except ImportError as e:
     # This block allows the app to load in dev environment without aeneas installed
     # The actual execution would fail unless mocked, but UI works.
     aeneas_error = e
+
+def clean_text_content(text):
+    """
+    Cleans the text content by removing footnote numbers like [1] and
+    removing parentheses around text like (Word) -> Word.
+    """
+    # Remove footnote numbers like [1], [12]
+    text = re.sub(r'\[\d+\]', '', text)
+    # Remove parentheses but keep the content: (Word) -> Word
+    text = re.sub(r'[()]', '', text)
+    return text
 
 def process_files(audio_file, text_file):
     """
@@ -33,6 +45,9 @@ def process_files(audio_file, text_file):
         text_path = os.path.join(temp_dir, "input.txt")
         # Ensure we read text as string
         text_content = text_file.read().decode("utf-8")
+
+        # Clean text content (remove numbers [1] and brackets)
+        text_content = clean_text_content(text_content)
 
         # Filter empty lines and normalize text
         lines = [line.strip() for line in text_content.splitlines() if line.strip()]

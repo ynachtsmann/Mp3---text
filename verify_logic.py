@@ -64,5 +64,24 @@ class TestAppLogic(unittest.TestCase):
 
         print("\nTest passed: Logic correctly processes mock Aeneas output into JSON structure.")
 
+    def test_text_cleaning(self):
+        """Test the text cleaning regex logic."""
+        # Test case 1: Brackets and footnote numbers
+        raw_text = "(Alles) Lob gehört Allah, dem Herrn der Welten[1]"
+        expected = "Alles Lob gehört Allah, dem Herrn der Welten"
+        self.assertEqual(app.clean_text_content(raw_text).strip(), expected)
+
+        # Test case 2: Just parentheses
+        raw_text_2 = "Dies ist (ein) Test"
+        expected_2 = "Dies ist ein Test"
+        self.assertEqual(app.clean_text_content(raw_text_2).strip(), expected_2)
+
+        # Test case 3: Multiple digits
+        raw_text_3 = "Wort[123] und so."
+        expected_3 = "Wort und so."
+        self.assertEqual(app.clean_text_content(raw_text_3).strip(), expected_3)
+
+        print("Test passed: Text cleaning logic works as expected.")
+
 if __name__ == '__main__':
     unittest.main()
