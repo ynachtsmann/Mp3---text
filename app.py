@@ -33,11 +33,13 @@ def process_files(audio_file, text_file):
         text_path = os.path.join(temp_dir, "input.txt")
         # Ensure we read text as string
         text_content = text_file.read().decode("utf-8")
-        with open(text_path, "w", encoding="utf-8") as f:
-            f.write(text_content)
 
-        # Check text lines for user feedback
+        # Filter empty lines and normalize text
         lines = [line.strip() for line in text_content.splitlines() if line.strip()]
+        clean_text = "\n".join(lines)
+
+        with open(text_path, "w", encoding="utf-8") as f:
+            f.write(clean_text)
 
         # Configure Aeneas Task
         # We need to construct the configuration string
