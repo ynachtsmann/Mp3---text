@@ -47,6 +47,14 @@ class TestAppLogic(unittest.TestCase):
         # Call the function directly
         result = app.process_files(mock_audio, mock_text)
 
+        # Verify the configuration string
+        args, kwargs = app.Task.call_args
+        config_used = kwargs.get('config_string')
+        self.assertIn("task_adjust_boundary_algorithm=percent", config_used)
+        self.assertIn("task_adjust_boundary_percent_value=50", config_used)
+        self.assertIn("is_audio_file_head_length=0", config_used)
+        self.assertIn("is_audio_file_tail_length=0", config_used)
+
         # Verify the result
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]['text'], "Aya 1")

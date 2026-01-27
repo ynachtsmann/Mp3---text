@@ -44,7 +44,7 @@ def process_files(audio_file, text_file):
         # Configure Aeneas Task
         # We need to construct the configuration string
         # is_text_type=plain means it reads line by line
-        config_string = u"task_language=de|is_text_type=plain|os_task_file_format=json"
+        config_string = u"task_language=de|is_text_type=plain|os_task_file_format=json|task_adjust_boundary_algorithm=percent|task_adjust_boundary_percent_value=50|is_audio_file_head_length=0|is_audio_file_tail_length=0"
 
         try:
             task = Task(config_string=config_string)
