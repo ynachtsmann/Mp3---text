@@ -4,6 +4,7 @@ import tempfile
 import json
 import shutil
 import sys
+import re
 
 # Try to import aeneas, if not available (development env), we might mock it later or handle error
 aeneas_error = None
@@ -36,7 +37,19 @@ def process_files(audio_file, text_file):
 
         # Filter empty lines and normalize text
         lines = [line.strip() for line in text_content.splitlines() if line.strip()]
-        clean_text = "\n".join(lines)
+
+        # Prepare cleaned text for Aeneas (remove numbering like "1) " and footnotes like "[1]")
+        cleaned_lines = []
+        for line in lines:
+            # Remove leading numbering (e.g., "1) ", "2) ")
+            # Regex: Start of line (^), digits (\d+), closing paren (\)), optional whitespace (\s*)
+            cl = re.sub(r'^\d+\)\s*', '', line)
+            # Remove footnotes (e.g., "[1]", "[12]")
+            cl = re.sub(r'\[\d+\]', '', cl)
+            cleaned_lines.append(cl)
+
+        # Write the cleaned text for Aeneas to process
+        clean_text = "\n".join(cleaned_lines)
 
         with open(text_path, "w", encoding="utf-8") as f:
             f.write(clean_text)
@@ -71,23 +84,32 @@ def process_files(audio_file, text_file):
         json_output = []
 
         # We can iterate over fragments directly from the task object
-        current_index = 1
+        # We need to map the fragments back to the original lines
+        valid_fragments = []
         for fragment in task.sync_map_leaves():
-            # fragment.begin and fragment.end are strings/floats
-            # fragment.text is the text
-
             # Filter out empty text segments (often head/tail silence)
+            # CAUTION: If our cleaning resulted in empty lines, this might cause a mismatch if Aeneas produced a fragment for it.
+            # With is_text_type=plain, Aeneas usually produces one fragment per line.
             if not fragment.text or not fragment.text.strip():
                 continue
+            valid_fragments.append(fragment)
 
+        # Check for length mismatch
+        if len(valid_fragments) != len(lines):
+            st.warning(f"Warnung: Anzahl der Textsegmente ({len(valid_fragments)}) stimmt nicht mit den Zeilen ({len(lines)}) überein.")
+
+        for i, fragment in enumerate(valid_fragments):
+            if i >= len(lines):
+                break
+
+            # Use the ORIGINAL text (lines[i]) but the timestamps from alignment
             entry = {
-                "index": current_index,
+                "index": i + 1,
                 "start": float(fragment.begin),
                 "end": float(fragment.end),
-                "text": fragment.text
+                "text": lines[i]
             }
             json_output.append(entry)
-            current_index += 1
 
         return json_output
 
